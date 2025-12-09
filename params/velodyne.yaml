@@ -1,0 +1,55 @@
+# Velodyne VLP-16 Configuration
+
+/**:
+  ros__parameters:
+    # Device configuration
+    device_ip: "192.168.1.201"
+    port: 2368
+    
+    # Frame ID for point cloud
+    frame_id: "velodyne"
+    
+    # Velodyne model (VLP16, VLP16HiRes, VLP32C, HDL32E, HDL64E)
+    model: "VLP16HiRes"
+    
+    # Motor RPM (Puck Hi-Res typically: 300, 600)
+    rpm: 600.0
+    
+    # PCAP file path (leave empty for live data)
+    pcap: ""
+    
+    # Read once (for PCAP replay)
+    read_once: false
+    
+    # Read fast (for PCAP replay)
+    read_fast: false
+    
+    # Repeat delay (for PCAP replay)
+    repeat_delay: 0.0
+
+# Transform node parameters
+velodyne_transform_node:
+  ros__parameters:
+    # Calibration file (leave empty for default)
+    calibration: ""
+    
+    # Minimum range in meters
+    min_range: 0.9
+    
+    # Maximum range in meters
+    max_range: 130.0
+    
+    # View direction (radians)
+    view_direction: 0.0
+    
+    # View width (radians, 2*pi for 360 degrees)
+    view_width: 6.283185307179586
+
+# Laserscan node parameters
+velodyne_laserscan_node:
+  ros__parameters:
+    # Ring number to extract (0-15 for VLP-16)
+    ring: 10
+    
+    # Angular resolution (radians)
+    resolution: 0.007
