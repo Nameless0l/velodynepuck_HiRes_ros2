@@ -29,8 +29,8 @@ def generate_launch_description():
     
     model_arg = DeclareLaunchArgument(
         'model',
-        default_value='VLP16HiRes',
-        description='Velodyne model (VLP16, VLP16HiRes, VLP32C, HDL32E, HDL64E)'
+        default_value='VLP16',
+        description='Velodyne model (VLP16, VLP32C, HDL32E, HDL64E)'
     )
     
     rpm_arg = DeclareLaunchArgument(
@@ -75,7 +75,6 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'model': LaunchConfiguration('model'),
-            'calibration': '',
             'min_range': 0.9,
             'max_range': 130.0,
             'view_direction': 0.0,

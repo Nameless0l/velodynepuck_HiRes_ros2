@@ -9,8 +9,9 @@
     # Frame ID for point cloud
     frame_id: "velodyne"
     
-    # Velodyne model (VLP16, VLP16HiRes, VLP32C, HDL32E, HDL64E)
-    model: "VLP16HiRes"
+    # Velodyne model (VLP16, VLP32C, HDL32E, HDL64E)
+    # Note: Puck Hi-Res uses VLP16 model with higher resolution firmware
+    model: "VLP16"
     
     # Motor RPM (Puck Hi-Res typically: 300, 600)
     rpm: 600.0
