@@ -3,6 +3,8 @@
 Launch file for Velodyne VLP-16 LiDAR driver
 """
 
+import os
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -13,6 +15,12 @@ def generate_launch_description():
     """
     Generate launch description for Velodyne VLP-16 LiDAR
     """
+    
+    # Get calibration file path
+    calibration_file = os.path.join(
+        get_package_share_directory('velodyne_pointcloud'),
+        'params', 'VLP16_hires_db.yaml'
+    )
     
     # Declare launch arguments
     device_ip_arg = DeclareLaunchArgument(
@@ -75,6 +83,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'model': LaunchConfiguration('model'),
+            'calibration': calibration_file,
             'min_range': 0.9,
             'max_range': 130.0,
             'view_direction': 0.0,
