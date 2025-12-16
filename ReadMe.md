@@ -12,13 +12,6 @@ Based on the original work by [Alfredo Gómez Mendoza](https://github.com/Freddy
 
 This repository provides a **production-ready Docker environment** for running Velodyne 3D LiDAR sensors (VLP-16, VLP-32C, HDL-32E, HDL-64E) with ROS 2 Jazzy. The setup follows modern DevOps practices with:
 
-- ✅ **Non-root user** for security
-- ✅ **CycloneDDS** RMW for better performance
-- ✅ **Symlink installs** for faster development
-- ✅ **X11 forwarding** for RViz2 GUI
-- ✅ **Network isolation** with domain IDs
-- ✅ **Volume caching** for performance
-
 The velodyne.zip contains the necessary ROS 2 packages. Extract it to get the velodyne driver packages. 
 
 
@@ -94,10 +87,10 @@ Let's show the IP address of our device:
 $ ip address show dev eno1
 ```
 
-**[Temporarily configure yourself an IP address](https://ubuntu.com/server/docs/network-configuration) in the `192.168.3.X` range**:
+**[Temporarily configure yourself an IP address](https://ubuntu.com/server/docs/network-configuration) in the `192.168.1.X` range**:
 
 ```bash
-$ sudo ip addr add 192.168.3.100 dev eno1
+$ sudo ip addr add 192.168.1.102 dev eno1
 ```
 
 Set up a **temporary route to the Velodyne**. In case a different address was configured for the Velodyne replace the address below by its address.
@@ -114,33 +107,10 @@ Now you should be able to open the webpage [http://192.168.1.201](http://192.168
 
 ![Velodyne user interface](./media/velodyne-user-interface.png)
 
----
-
-## 🗂️ Project Structure
-
-```
-velodyne16-ros2/
-├── Dockerfile              # ROS 2 Jazzy container definition
-├── docker-compose.yaml     # Service orchestration
-├── .env.example           # Environment variables template
-├── launch/                # Launch files
-│   └── velodyne_launch.py # Main launch script
-├── params/                # Configuration files
-│   └── velodyne.yaml      # Driver parameters
-├── rviz/                  # Visualization configs
-│   └── velodyne.rviz      # RViz2 setup
-├── velodyne/              # ROS 2 packages (from velodyne.zip)
-│   ├── velodyne_driver/
-│   ├── velodyne_msgs/
-│   ├── velodyne_pointcloud/
-│   └── velodyne_laserscan/
-└── doc/                   # Documentation
-    └── CablingGuide.md    # Hardware setup guide
-```
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Prerequisites
 
