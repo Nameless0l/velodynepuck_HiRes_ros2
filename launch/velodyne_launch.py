@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Launch file for Velodyne VLP-16 LiDAR driver
-"""
 
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -12,54 +9,18 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    """
-    Generate launch description for Velodyne VLP-16 LiDAR
-    """
-    
-    # Get calibration file path
     calibration_file = os.path.join(
         get_package_share_directory('velodyne_pointcloud'),
         'params', 'VLP16_hires_db.yaml'
     )
-    
-    # Declare launch arguments
-    device_ip_arg = DeclareLaunchArgument(
-        'device_ip',
-        default_value='192.168.1.201',
-        description='IP address of the Velodyne device'
-    )
-    
-    frame_id_arg = DeclareLaunchArgument(
-        'frame_id',
-        default_value='velodyne',
-        description='Frame ID for the point cloud'
-    )
-    
-    model_arg = DeclareLaunchArgument(
-        'model',
-        default_value='VLP16',
-        description='Velodyne model (VLP16, VLP32C, HDL32E, HDL64E)'
-    )
-    
-    rpm_arg = DeclareLaunchArgument(
-        'rpm',
-        default_value='600.0',
-        description='Motor RPM'
-    )
-    
-    pcap_arg = DeclareLaunchArgument(
-        'pcap',
-        default_value='',
-        description='Path to PCAP file (leave empty for live data)'
-    )
-    
-    port_arg = DeclareLaunchArgument(
-        'port',
-        default_value='2368',
-        description='UDP port for Velodyne packets'
-    )
-    
-    # Velodyne driver node
+
+    device_ip_arg = DeclareLaunchArgument('device_ip', default_value='192.168.1.201')
+    frame_id_arg = DeclareLaunchArgument('frame_id', default_value='velodyne')
+    model_arg = DeclareLaunchArgument('model', default_value='VLP16')
+    rpm_arg = DeclareLaunchArgument('rpm', default_value='600.0')
+    pcap_arg = DeclareLaunchArgument('pcap', default_value='')
+    port_arg = DeclareLaunchArgument('port', default_value='2368')
+
     velodyne_driver_node = Node(
         package='velodyne_driver',
         executable='velodyne_driver_node',
@@ -74,8 +35,7 @@ def generate_launch_description():
             'port': LaunchConfiguration('port'),
         }]
     )
-    
-    # Velodyne transform node (converts packets to point cloud)
+
     velodyne_transform_node = Node(
         package='velodyne_pointcloud',
         executable='velodyne_transform_node',
@@ -84,28 +44,25 @@ def generate_launch_description():
         parameters=[{
             'model': LaunchConfiguration('model'),
             'calibration': calibration_file,
-            'min_range': 0.9,
+            'min_range': 0.4,
             'max_range': 130.0,
             'view_direction': 0.0,
-            'view_width': 6.283185307179586,  # 2*pi
+            'view_width': 6.283185307179586,
         }]
     )
-    
-    # Velodyne laserscan node (converts point cloud to 2D laser scan)
+
     velodyne_laserscan_node = Node(
         package='velodyne_laserscan',
         executable='velodyne_laserscan_node',
         name='velodyne_laserscan',
         output='screen',
         parameters=[{
-            'ring': 10,
+            'ring': 8,
             'resolution': 0.007,
         }],
-        remappings=[
-            ('velodyne_points', 'velodyne_points'),
-        ]
+        remappings=[('velodyne_points', 'velodyne_points')]
     )
-    
+
     return LaunchDescription([
         device_ip_arg,
         frame_id_arg,

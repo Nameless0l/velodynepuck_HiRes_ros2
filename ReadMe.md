@@ -178,10 +178,22 @@ UID=1000
 xhost +local:docker
 
 # Build the Docker image
-docker-compose build
+docker compose build
 
-# Start the container (launches driver + RViz2 automatically)
-docker-compose up
+# Start the container
+docker compose up
+```
+
+### 5. Access Container Shell
+
+```bash
+# In a new terminal
+docker exec -it velodyne-velodyne_container-1 bash
+
+# Commands are available directly (ROS2 is auto-sourced)
+ros2 topic list
+ros2 topic hz /velodyne_points
+rviz2
 ```
 
 The Velodyne driver will launch automatically with RViz2 for visualization.
@@ -270,8 +282,48 @@ docker-compose run velodyne_container ros2 launch velodyne velodyne_launch.py pc
 | Topic | Type | Description |
 |-------|------|-------------|
 | `/velodyne_packets` | `velodyne_msgs/VelodyneScan` | Raw packet data |
-| `/velodyne_points` | `sensor_msgs/PointCloud2` | 3D point cloud |
-| `/scan` | `sensor_msgs/LaserScan` | 2D laser scan (from selected ring) |
+| `/velodyne_points` | `sensor_msgs/PointCloud2` | 3D point cloud (16 rings) |
+| `/scan` | `sensor_msgs/LaserScan` | 2D laser scan (single ring) |
+
+---
+
+## 🎯 Calibration Files
+
+The driver needs the correct calibration file for your LiDAR model:
+
+| Model | Calibration File | Vertical FOV |
+|-------|------------------|--------------|
+| VLP-16 Standard | `VLP16db.yaml` | -15° to +15° (30°) |
+| VLP-16 Puck Hi-Res | `VLP16_hires_db.yaml` | -10° to +10° (20°) |
+| VLP-32C | `VeloView-VLP-32C.yaml` | -25° to +15° |
+
+The calibration file is set in `launch/velodyne_launch.py`:
+
+```python
+calibration_file = os.path.join(
+    get_package_share_directory('velodyne_pointcloud'),
+    'params', 'VLP16_hires_db.yaml'  # Change based on your model
+)
+```
+
+---
+
+## 🖥️ RViz2 Configuration
+
+After launching, configure RViz2 for optimal visualization:
+
+1. **Fixed Frame**: Set to `velodyne`
+2. **Add PointCloud2**: Topic `/velodyne_points`
+3. **Reliability Policy**: `Best Effort` (reduces lag)
+4. **Decay Time**: `0.1` - `0.5` (stabilizes display)
+5. **Color Transformer**: `Intensity` or `AxisColor`
+
+### Performance Tips for Jetson/ARM
+
+If experiencing "queue is full" warnings:
+- Set **Reliability Policy** to `Best Effort`
+- Increase **Decay Time** to `0.3`
+- Reduce **Frame Rate** to `10-15`
 
 ---
 
@@ -289,9 +341,24 @@ sudo route add 192.168.1.201 dev <YOUR_INTERFACE>
 
 ### No points in RViz2
 
-1. Check topic: `ros2 topic hz /velodyne_points`
-2. Verify IP: `ros2 param get /velodyne_driver device_ip`
-3. Check firewall: `sudo ufw allow 2368/udp`
+1. Check Fixed Frame is set to `velodyne` (not `map`)
+2. Check topic: `ros2 topic hz /velodyne_points`
+3. Verify IP: `ros2 param get /velodyne_driver device_ip`
+4. Check firewall: `sudo ufw allow 2368/udp`
+5. Verify calibration file matches your LiDAR model
+
+### Points appear as single line
+
+- Wrong calibration file for your model
+- LiDAR not horizontal (check physical orientation)
+- Objects too close (increase `min_range`)
+
+### "queue is full" warnings in RViz2
+
+This is a performance issue on low-power devices (Jetson):
+- Set Reliability Policy to `Best Effort`
+- Increase Decay Time
+- Reduce Frame Rate
 
 ### X11 connection refused
 
