@@ -6,6 +6,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch.conditions import IfCondition
 
 
 def generate_launch_description():
@@ -14,12 +15,18 @@ def generate_launch_description():
         'params', 'VLP16_hires_db.yaml'
     )
 
+    rviz_config_file = os.path.join(
+        get_package_share_directory('velodyne'),
+        'rviz', 'velodyne.rviz'
+    )
+
     device_ip_arg = DeclareLaunchArgument('device_ip', default_value='192.168.1.201')
     frame_id_arg = DeclareLaunchArgument('frame_id', default_value='velodyne')
     model_arg = DeclareLaunchArgument('model', default_value='VLP16')
     rpm_arg = DeclareLaunchArgument('rpm', default_value='600.0')
     pcap_arg = DeclareLaunchArgument('pcap', default_value='')
     port_arg = DeclareLaunchArgument('port', default_value='2368')
+    rviz_arg = DeclareLaunchArgument('rviz', default_value='true', description='Lancer RViz2')
 
     velodyne_driver_node = Node(
         package='velodyne_driver',
@@ -63,6 +70,15 @@ def generate_launch_description():
         remappings=[('velodyne_points', 'velodyne_points')]
     )
 
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_config_file],
+        output='screen',
+        condition=IfCondition(LaunchConfiguration('rviz')),
+    )
+
     return LaunchDescription([
         device_ip_arg,
         frame_id_arg,
@@ -70,7 +86,9 @@ def generate_launch_description():
         rpm_arg,
         pcap_arg,
         port_arg,
+        rviz_arg,
         velodyne_driver_node,
         velodyne_transform_node,
         velodyne_laserscan_node,
+        rviz_node,
     ])
